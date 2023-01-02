@@ -40,8 +40,9 @@ Vehicle Keys System For QB-Core
 - restart your server.
 
 # server.cfg
+```lua
 ensure qb-core
 ensure mh-vehiclekeyitem
 ensure mh-vehiclekeys
 ensure [qb]
-
+```
