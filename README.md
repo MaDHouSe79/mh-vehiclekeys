@@ -32,7 +32,7 @@ Vehicle Keys System For QB-Core
 
 ## Dependencies:
 - [qb-core](https://github.com/qbcore-framework/qb-core) (Required)
-- [mh-vehiclekeyitem](https://github.com/MaDHouSe79/mh-vehiclekeyitem) (Optional)
+- [mh-vehiclekeyitem](https://github.com/MaDHouSe79/mh-vehiclekeyitem) (Required)
 
 ## How to install
 - delete the folder `qb-vehiclekeys` from the `resources/[qb]/` folder
