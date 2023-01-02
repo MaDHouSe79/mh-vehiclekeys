@@ -38,3 +38,10 @@ Vehicle Keys System For QB-Core
 - delete the folder `qb-vehiclekeys` from the `resources/[qb]/` folder
 - add the folder `mh-vehiclekeys` into `resources/[qb]/` folder
 - restart your server.
+
+# server.cfg
+ensure qb-core
+ensure mh-vehiclekeyitem
+ensure mh-vehiclekeys
+ensure [qb]
+
