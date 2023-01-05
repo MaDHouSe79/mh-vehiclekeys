@@ -30,6 +30,10 @@
 # mh-vehiclekeys
 Vehicle Keys System For QB-Core
 
+# Install
+- 1: rename mh-vehiclekeys to qb-vehiclekeys and put this folder in [qb]
+- 2: restart your server
+
 ## Dependencies:
 - [qb-core](https://github.com/qbcore-framework/qb-core) (Required)
 - [mh-vehiclekeyitem](https://github.com/MaDHouSe79/mh-vehiclekeyitem) (Required)
