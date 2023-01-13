@@ -42,7 +42,6 @@ Vehicle Keys System For QB-Core
 # server.cfg
 ```lua
 ensure qb-core
-ensure mh-vehiclekeyitem
-ensure mh-vehiclekeys
 ensure [qb]
+ensure [mh]
 ```
