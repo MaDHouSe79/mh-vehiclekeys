@@ -1,7 +1,7 @@
 Config = {}
 
 
-Config.UseKeyAsItem = true -- this will turn the vehicle keys to a usable item
+Config.UseKeyAsItem = false -- You ned mh-vehiclekeyitem for this and will turn the vehicle keys to a usable item.
 
 -- NPC Vehicle Lock States
 Config.LockNPCDrivingCars = true -- Lock state for NPC cars being driven by NPCs [true = locked, false = unlocked]
