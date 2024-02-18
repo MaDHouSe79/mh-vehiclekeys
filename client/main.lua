@@ -12,7 +12,7 @@ local function GiveKeys(id, plate)
     if distance < 1.5 and distance > 0.0 then
         TriggerServerEvent('qb-vehiclekeys:server:GiveVehicleKeys', id, plate)
     else
-        QBCore.Functions.Notify('Er is niemand in de buurt om sleutels aan te overhandigen.','error')
+        QBCore.Functions.Notify('Er is niemand in de buurt om sleutels aan te overhandigen.', 'error')
     end
 end
 
@@ -37,36 +37,49 @@ local function GetVehicleInDirection(coordFromOffset, coordToOffset)
     local ped = PlayerPedId()
     local coordFrom = GetOffsetFromEntityInWorldCoords(ped, coordFromOffset.x, coordFromOffset.y, coordFromOffset.z)
     local coordTo = GetOffsetFromEntityInWorldCoords(ped, coordToOffset.x, coordToOffset.y, coordToOffset.z)
-    local rayHandle = CastRayPointToPoint(coordFrom.x, coordFrom.y, coordFrom.z, coordTo.x, coordTo.y, coordTo.z, 10, GetPlayerPed(-1), 0)
+    local rayHandle = CastRayPointToPoint(coordFrom.x, coordFrom.y, coordFrom.z, coordTo.x, coordTo.y, coordTo.z, 10,
+        GetPlayerPed(-1), 0)
     local _, _, _, _, vehicle = GetShapeTestResult(rayHandle)
     return vehicle
 end
 
 local function GetVehicle()
     local vehicle = GetVehiclePedIsIn(GetPlayerPed(-1))
-    local RaycastOffsetTable = {
-        { ['fromOffset'] = vector3(0.0, 0.0, 0.0), ['toOffset'] = vector3(0.0, 20.0, -10.0) }, -- Waist to ground 45 degree angle
-        { ['fromOffset'] = vector3(0.0, 0.0, 0.7), ['toOffset'] = vector3(0.0, 10.0, -10.0) }, -- Head to ground 30 degree angle
-        { ['fromOffset'] = vector3(0.0, 0.0, 0.7), ['toOffset'] = vector3(0.0, 10.0, -20.0) }, -- Head to ground 15 degree angle
+    local RaycastOffsetTable = {{
+        ['fromOffset'] = vector3(0.0, 0.0, 0.0),
+        ['toOffset'] = vector3(0.0, 20.0, -10.0)
+    }, -- Waist to ground 45 degree angle
+    {
+        ['fromOffset'] = vector3(0.0, 0.0, 0.7),
+        ['toOffset'] = vector3(0.0, 10.0, -10.0)
+    }, -- Head to ground 30 degree angle
+    {
+        ['fromOffset'] = vector3(0.0, 0.0, 0.7),
+        ['toOffset'] = vector3(0.0, 10.0, -20.0)
+    } -- Head to ground 15 degree angle
     }
     local count = 0
     while vehicle == 0 and count < #RaycastOffsetTable do
         count = count + 1
         vehicle = GetVehicleInDirection(RaycastOffsetTable[count]['fromOffset'], RaycastOffsetTable[count]['toOffset'])
     end
-    if not IsEntityAVehicle(vehicle) then vehicle = nil end
+    if not IsEntityAVehicle(vehicle) then
+        vehicle = nil
+    end
     return vehicle
 end
 
 local function isBlacklistedVehicle(vehicle)
     local isBlacklisted = false
-    for _,v in ipairs(Config.NoLockVehicles) do
+    for _, v in ipairs(Config.NoLockVehicles) do
         if GetHashKey(v) == GetEntityModel(vehicle) then
             isBlacklisted = true
-            break;
+            break
         end
     end
-    if Entity(vehicle).state.ignoreLocks or GetVehicleClass(vehicle) == 13 then isBlacklisted = true end
+    if Entity(vehicle).state.ignoreLocks or GetVehicleClass(vehicle) == 13 then
+        isBlacklisted = true
+    end
     return isBlacklisted
 end
 
@@ -74,38 +87,40 @@ local function ToggleVehicleLocks(veh)
     if veh then
         if not isBlacklistedVehicle(veh) then
             if HasKeys(QBCore.Functions.GetPlate(veh)) then
-		if Config.UseKeyAsItem then		
-		    QBCore.Functions.TriggerCallback('mh-vehiclekeyitem:server:IHaveTheKeyItem', function(result)
-			if result then
-			    local ped = PlayerPedId()
-			    local vehLockStatus = GetVehicleDoorLockStatus(veh)
-			    loadAnimDict("anim@mp_player_intmenu@key_fob@")
-			    TaskPlayAnim(ped, 'anim@mp_player_intmenu@key_fob@', 'fob_click', 3.0, 3.0, -1, 49, 0, false, false, false)
-			    TriggerServerEvent("InteractSound_SV:PlayWithinDistance", 5, "lock", 0.3)
-			    NetworkRequestControlOfEntity(veh)
-			    if vehLockStatus == 1 then
-				SetVehicleDoorsLocked(veh, 2)
-				QBCore.Functions.Notify("Voertuig vergrendeld!", "primary")
-			    else
-			        SetVehicleDoorsLocked(veh, 1)
-				QBCore.Functions.Notify("Voertuig ontgrendeld!", "success")
-			    end
-			    SetVehicleLights(veh, 2)
-			    Wait(250)
-			    SetVehicleLights(veh, 1)
-			    Wait(200)
-			    SetVehicleLights(veh, 0)
-			    Wait(300)
-			    ClearPedTasks(ped)
-			else
-			    QBCore.Functions.Notify("Je hebt geen sleutel item van dit voertuig.", 'error')
-			end
-		    end, QBCore.Functions.GetPlate(veh))
-		else
-		    local ped = PlayerPedId()
+                if Config.UseKeyAsItem then
+                    QBCore.Functions.TriggerCallback('mh-vehiclekeyitem:server:IHaveTheKeyItem', function(result)
+                        if result then
+                            local ped = PlayerPedId()
+                            local vehLockStatus = GetVehicleDoorLockStatus(veh)
+                            loadAnimDict("anim@mp_player_intmenu@key_fob@")
+                            TaskPlayAnim(ped, 'anim@mp_player_intmenu@key_fob@', 'fob_click', 3.0, 3.0, -1, 49, 0,
+                                false, false, false)
+                            TriggerServerEvent("InteractSound_SV:PlayWithinDistance", 5, "lock", 0.3)
+                            NetworkRequestControlOfEntity(veh)
+                            if vehLockStatus == 1 then
+                                SetVehicleDoorsLocked(veh, 2)
+                                QBCore.Functions.Notify("Voertuig vergrendeld!", "primary")
+                            else
+                                SetVehicleDoorsLocked(veh, 1)
+                                QBCore.Functions.Notify("Voertuig ontgrendeld!", "success")
+                            end
+                            SetVehicleLights(veh, 2)
+                            Wait(250)
+                            SetVehicleLights(veh, 1)
+                            Wait(200)
+                            SetVehicleLights(veh, 0)
+                            Wait(300)
+                            ClearPedTasks(ped)
+                        else
+                            QBCore.Functions.Notify("Je hebt geen sleutel item van dit voertuig.", 'error')
+                        end
+                    end, QBCore.Functions.GetPlate(veh))
+                else
+                    local ped = PlayerPedId()
                     local vehLockStatus = GetVehicleDoorLockStatus(veh)
                     loadAnimDict("anim@mp_player_intmenu@key_fob@")
-                    TaskPlayAnim(ped, 'anim@mp_player_intmenu@key_fob@', 'fob_click', 3.0, 3.0, -1, 49, 0, false, false, false)
+                    TaskPlayAnim(ped, 'anim@mp_player_intmenu@key_fob@', 'fob_click', 3.0, 3.0, -1, 49, 0, false, false,
+                        false)
                     TriggerServerEvent("InteractSound_SV:PlayWithinDistance", 5, "lock", 0.3)
                     NetworkRequestControlOfEntity(veh)
                     if vehLockStatus == 1 then
@@ -122,7 +137,7 @@ local function ToggleVehicleLocks(veh)
                     SetVehicleLights(veh, 0)
                     Wait(300)
                     ClearPedTasks(ped)
-		end				
+                end
             else
                 QBCore.Functions.Notify("Je hebt geen sleutels van dit voertuig.", 'error')
             end
@@ -134,10 +149,10 @@ end
 
 local function GetOtherPlayersInVehicle(vehicle)
     local otherPeds = {}
-    for seat=-1,GetVehicleModelNumberOfSeats(GetEntityModel(vehicle))-2 do
+    for seat = -1, GetVehicleModelNumberOfSeats(GetEntityModel(vehicle)) - 2 do
         local pedInSeat = GetPedInVehicleSeat(vehicle, seat)
         if IsPedAPlayer(pedInSeat) and pedInSeat ~= PlayerPedId() then
-            otherPeds[#otherPeds+1] = pedInSeat
+            otherPeds[#otherPeds + 1] = pedInSeat
         end
     end
     return otherPeds
@@ -145,10 +160,10 @@ end
 
 local function GetPedsInVehicle(vehicle)
     local otherPeds = {}
-    for seat=-1,GetVehicleModelNumberOfSeats(GetEntityModel(vehicle))-2 do
+    for seat = -1, GetVehicleModelNumberOfSeats(GetEntityModel(vehicle)) - 2 do
         local pedInSeat = GetPedInVehicleSeat(vehicle, seat)
         if not IsPedAPlayer(pedInSeat) and pedInSeat ~= 0 then
-            otherPeds[#otherPeds+1] = pedInSeat
+            otherPeds[#otherPeds + 1] = pedInSeat
         end
     end
     return otherPeds
@@ -173,7 +188,7 @@ local function AttemptPoliceAlert(type)
             chance = Config.PoliceNightAlertChance
         end
         if math.random() <= chance then
-           TriggerServerEvent('police:server:policeAlert', 'Voertuigdiefstal aan de gang')
+            TriggerServerEvent('police:server:policeAlert', 'Voertuigdiefstal aan de gang')
         end
         AlertSend = true
         SetTimeout(Config.AlertCooldown, function()
@@ -190,7 +205,7 @@ local function lockpickFinish(success)
         lastPickedVehicle = vehicle
         if GetPedInVehicleSeat(vehicle, -1) == PlayerPedId() then
             TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', QBCore.Functions.GetPlate(vehicle))
-	    TriggerEvent('mh-vehiclekeyitem:client:CreateTempKey', vehicle)
+            TriggerEvent('mh-vehiclekeyitem:client:CreateTempKey', vehicle)
         else
             QBCore.Functions.Notify('Het is je gelukt om het slot open te krijgen!', 'success')
             SetVehicleDoorsLocked(vehicle, 1)
@@ -214,10 +229,18 @@ local function LockpickDoor(isAdvanced)
     local ped = PlayerPedId()
     local pos = GetEntityCoords(ped)
     local vehicle = QBCore.Functions.GetClosestVehicle()
-    if vehicle == nil or vehicle == 0 then return end
-    if HasKeys(QBCore.Functions.GetPlate(vehicle)) then return end
-    if #(pos - GetEntityCoords(vehicle)) > 2.5 then return end
-    if not (GetVehicleDoorLockStatus(vehicle) > 0) then return end
+    if vehicle == nil or vehicle == 0 then
+        return
+    end
+    if HasKeys(QBCore.Functions.GetPlate(vehicle)) then
+        return
+    end
+    if #(pos - GetEntityCoords(vehicle)) > 2.5 then
+        return
+    end
+    if not (GetVehicleDoorLockStatus(vehicle) > 0) then
+        return
+    end
     usingAdvanced = isAdvanced
     TriggerEvent('qb-lockpick:client:openLockpick', lockpickFinish)
 end
@@ -242,7 +265,7 @@ local function Hotwire(vehicle, plate)
         TriggerServerEvent('hud:server:GainStress', math.random(1, 4))
         if (math.random() <= Config.HotwireChance) then
             TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', plate)
-	    TriggerEvent('mh-vehiclekeyitem:client:CreateTempKey', vehicle)
+            TriggerEvent('mh-vehiclekeyitem:client:CreateTempKey', vehicle)
         else
             QBCore.Functions.Notify("Je kunt de sleutels niet vinden en raakt gefrustreerd.", "error")
         end
@@ -262,13 +285,13 @@ local function CarjackVehicle(target)
     loadAnimDict('mp_am_hold_up')
     local vehicle = GetVehiclePedIsUsing(target)
     local occupants = GetPedsInVehicle(vehicle)
-    for p=1,#occupants do
+    for p = 1, #occupants do
         local ped = occupants[p]
         CreateThread(function()
             TaskPlayAnim(ped, "mp_am_hold_up", "holdup_victim_20s", 8.0, -8.0, -1, 49, 0, false, false, false)
             PlayPain(ped, 6, 0)
         end)
-        Wait(math.random(200,500))
+        Wait(math.random(200, 500))
     end
     -- Cancel progress bar if: Ped dies during robbery, car gets too far away
     CreateThread(function()
@@ -280,41 +303,42 @@ local function CarjackVehicle(target)
             Wait(100)
         end
     end)
-    QBCore.Functions.Progressbar("rob_keys", "Poging tot carjacking..", Config.CarjackingTime, false, true, {}, {}, {}, {}, function()
-        local hasWeapon, weaponHash = GetCurrentPedWeapon(PlayerPedId(), true)
-        if hasWeapon and isCarjacking then
-            if math.random() <= Config.CarjackChance[tostring(GetWeapontypeGroup(weaponHash))] then
-                local plate = QBCore.Functions.GetPlate(vehicle)
-                for p=1,#occupants do
-                    local ped = occupants[p]
-                    CreateThread(function()
-                        TaskLeaveVehicle(ped, vehicle, 0)
-                        PlayPain(ped, 6, 0)
-                        Wait(1250)
-                        ClearPedTasksImmediately(ped)
-                        PlayPain(ped, math.random(7,8), 0)
-                        MakePedFlee(ped)
-                    end)
+    QBCore.Functions.Progressbar("rob_keys", "Poging tot carjacking..", Config.CarjackingTime, false, true, {}, {}, {},
+        {}, function()
+            local hasWeapon, weaponHash = GetCurrentPedWeapon(PlayerPedId(), true)
+            if hasWeapon and isCarjacking then
+                if math.random() <= Config.CarjackChance[tostring(GetWeapontypeGroup(weaponHash))] then
+                    local plate = QBCore.Functions.GetPlate(vehicle)
+                    for p = 1, #occupants do
+                        local ped = occupants[p]
+                        CreateThread(function()
+                            TaskLeaveVehicle(ped, vehicle, 0)
+                            PlayPain(ped, 6, 0)
+                            Wait(1250)
+                            ClearPedTasksImmediately(ped)
+                            PlayPain(ped, math.random(7, 8), 0)
+                            MakePedFlee(ped)
+                        end)
+                    end
+                    TriggerServerEvent('hud:server:GainStress', math.random(1, 4))
+                    TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', plate)
+                    TriggerEvent('mh-vehiclekeyitem:client:CreateTempKey', vehicle)
+                else
+                    MakePedFlee(target)
+                    TriggerServerEvent('hud:server:GainStress', math.random(1, 4))
                 end
-                TriggerServerEvent('hud:server:GainStress', math.random(1, 4))
-                TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', plate)
-	        TriggerEvent('mh-vehiclekeyitem:client:CreateTempKey', vehicle)
-            else
-                MakePedFlee(target)
-                TriggerServerEvent('hud:server:GainStress', math.random(1, 4))
+                isCarjacking = false
+                Wait(2000)
+                AttemptPoliceAlert("carjack")
+                Wait(Config.DelayBetweenCarjackings)
+                canCarjack = true
             end
+        end, function()
+            MakePedFlee(target)
             isCarjacking = false
-            Wait(2000)
-            AttemptPoliceAlert("carjack")
             Wait(Config.DelayBetweenCarjackings)
             canCarjack = true
-        end
-    end, function()
-        MakePedFlee(target)
-        isCarjacking = false
-        Wait(Config.DelayBetweenCarjackings)
-        canCarjack = true
-    end)
+        end)
 end
 
 local function MakePedFlee(ped)
@@ -344,7 +368,7 @@ end)
 
 AddEventHandler('onResourceStart', function(resourceName)
     if resourceName == GetCurrentResourceName() and QBCore.Functions.GetPlayerData() ~= {} then
-	GetKeys()
+        GetKeys()
     end
 end)
 
@@ -357,7 +381,9 @@ RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
 end)
 
 RegisterNetEvent('qb-vehiclekeys:client:RemoveKeys', function(plate)
-    if KeysList[plate] then KeysList[plate] = nil end
+    if KeysList[plate] then
+        KeysList[plate] = nil
+    end
 end)
 
 RegisterNetEvent('lockpicks:UseLockpick', function(isAdvanced)
@@ -391,8 +417,9 @@ RegisterNetEvent('qb-vehiclekeys:client:GiveKeys', function(id)
             else
                 if IsPedSittingInVehicle(PlayerPedId(), targetVehicle) then -- Give keys to everyone in vehicle
                     local otherOccupants = GetOtherPlayersInVehicle(targetVehicle)
-                    for p=1,#otherOccupants do
-                        TriggerServerEvent('qb-vehiclekeys:server:GiveVehicleKeys', GetPlayerServerId(NetworkGetPlayerIndexFromPed(otherOccupants[p])), targetPlate)
+                    for p = 1, #otherOccupants do
+                        TriggerServerEvent('qb-vehiclekeys:server:GiveVehicleKeys',
+                            GetPlayerServerId(NetworkGetPlayerIndexFromPed(otherOccupants[p])), targetPlate)
                     end
                 else
                     GiveKeys(GetPlayerServerId(QBCore.Functions.GetClosestPlayer()), targetPlate)
@@ -426,28 +453,29 @@ CreateThread(function()
                         if not isTakingKeys then
                             isTakingKeys = true
                             SetVehicleDoorsLocked(entering, 1)
-                            QBCore.Functions.Progressbar("steal_keys", "Sleutels van het lichaam nemen...", 2500, false, false, {
-                                disableMovement = false,
-                                disableCarMovement = true,
-                                disableMouse = false,
-                                disableCombat = true
-                            }, {}, {}, {}, function() -- Done
-                                TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', plate)
-				TriggerEvent('mh-vehiclekeyitem:client:CreateTempKey', entering)
-                                isTakingKeys = false
-                            end, function()
-                                isTakingKeys = false
-                            end)
+                            QBCore.Functions.Progressbar("steal_keys", "Sleutels van het lichaam nemen...", 2500, false,
+                                false, {
+                                    disableMovement = false,
+                                    disableCarMovement = true,
+                                    disableMouse = false,
+                                    disableCombat = true
+                                }, {}, {}, {}, function() -- Done
+                                    TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', plate)
+                                    TriggerEvent('mh-vehiclekeyitem:client:CreateTempKey', entering)
+                                    isTakingKeys = false
+                                end, function()
+                                    isTakingKeys = false
+                                end)
                         end
                     else
-			if Config.LockNPCDrivingCars then
+                        if Config.LockNPCDrivingCars then
                             SetVehicleDoorsLocked(entering, 2) -- Rijdende voertuigen 1 = niet op slot 2 = op slot
-			end
+                        end
                     end
                 elseif driver == 0 and entering ~= lastPickedVehicle and not HasKeys(plate) and not isTakingKeys then
-		    if Config.LockNPCParkedCars then
+                    if Config.LockNPCParkedCars then
                         SetVehicleDoorsLocked(entering, 2) -- Geparkeerde auto's 1 = niet op slot 2 = op slot
-		    end
+                    end
                 end
             end
             -- Hotwiring while in vehicle, also keeps engine off for vehicles you don't own keys to
@@ -455,13 +483,19 @@ CreateThread(function()
                 sleep = 1000
                 local vehicle = GetVehiclePedIsIn(ped)
                 local plate = QBCore.Functions.GetPlate(vehicle)
-                if GetPedInVehicleSeat(vehicle, -1) == PlayerPedId() and not HasKeys(plate) and not isBlacklistedVehicle(vehicle) then
+                if GetPedInVehicleSeat(vehicle, -1) == PlayerPedId() and not HasKeys(plate) and
+                    not isBlacklistedVehicle(vehicle) then
                     sleep = 5
-                    local vehiclePos = GetOffsetFromEntityInWorldCoords(vehicle, 0.0, 1.0, 0.5)
-                    DrawText3D(vehiclePos.x, vehiclePos.y, vehiclePos.z, "~g~[H]~w~ - Zoeken naar sleutels")
-                    SetVehicleEngineOn(vehicle, false, false, true)
-                    if IsControlJustPressed(0, 74) then
-                        Hotwire(vehicle, plate)
+                    if Config.UseHotwiring then
+                        local vehiclePos = GetOffsetFromEntityInWorldCoords(vehicle, 0.0, 1.0, 0.5)
+                        DrawText3D(vehiclePos.x, vehiclePos.y, vehiclePos.z, "~g~[H]~w~ - Zoeken naar sleutels")
+                        SetVehicleEngineOn(vehicle, false, false, true)
+                        if IsControlJustPressed(0, 74) then
+                            Hotwire(vehicle, plate)
+                        end
+                    else
+                        TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', plate)
+                        TriggerEvent('mh-vehiclekeyitem:client:CreateTempKey', vehicle)
                     end
                 end
             end
@@ -469,7 +503,8 @@ CreateThread(function()
                 local playerid = PlayerId()
                 local aiming, target = GetEntityPlayerIsFreeAimingAt(playerid)
                 if aiming and (target ~= nil and target ~= 0) then
-                    if DoesEntityExist(target) and IsPedInAnyVehicle(target, false) and not IsEntityDead(target) and not IsPedAPlayer(target) then
+                    if DoesEntityExist(target) and IsPedInAnyVehicle(target, false) and not IsEntityDead(target) and
+                        not IsPedAPlayer(target) then
                         local targetveh = GetVehiclePedIsIn(target)
                         for _, veh in ipairs(Config.ImmuneVehicles) do
                             if GetEntityModel(targetveh) == GetHashKey(veh) then
