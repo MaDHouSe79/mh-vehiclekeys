@@ -7,6 +7,8 @@ Config.UseKeyAsItem = false -- You ned mh-vehiclekeyitem for this and will turn 
 Config.LockNPCDrivingCars = true -- Lock state for NPC cars being driven by NPCs [true = locked, false = unlocked]
 Config.LockNPCParkedCars = true -- Lock state for NPC parked cars [true = locked, false = unlocked]
 
+Config.UseHotwiring = true -- default true, if false you get a key autimatic.
+
 -- Lockpick Settings
 Config.RemoveLockpickNormal = 0.5 -- Chance to remove lockpick on fail
 Config.RemoveLockpickAdvanced = 0.2 -- Chance to remove advanced lockpick on fail
