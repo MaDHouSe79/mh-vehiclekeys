@@ -440,10 +440,14 @@ CreateThread(function()
                             end)
                         end
                     else
-                        SetVehicleDoorsLocked(entering, 2) -- Rijdende voertuigen 1 = niet op slot 2 = op slot
+			if Config.LockNPCDrivingCars then
+                            SetVehicleDoorsLocked(entering, 2) -- Rijdende voertuigen 1 = niet op slot 2 = op slot
+			end
                     end
                 elseif driver == 0 and entering ~= lastPickedVehicle and not HasKeys(plate) and not isTakingKeys then
-                    SetVehicleDoorsLocked(entering, 2) -- Geparkeerde auto's 1 = niet op slot 2 = op slot
+		    if Config.LockNPCParkedCars then
+                        SetVehicleDoorsLocked(entering, 2) -- Geparkeerde auto's 1 = niet op slot 2 = op slot
+		    end
                 end
             end
             -- Hotwiring while in vehicle, also keeps engine off for vehicles you don't own keys to
