@@ -57,7 +57,7 @@ RegisterNetEvent('qb-vehiclekeys:server:breakLockpick', function(itemName)
     if not Player then return end
     if not (itemName == "lockpick" or itemName == "advancedlockpick") then return end
     if Player.Functions.RemoveItem(itemName, 1) then
-        TriggerClientEvent("inventory:client:ItemBox", source, QBCore.Shared.Items[itemName], "remove")
+        TriggerClientEvent("qb-inventory:client:ItemBox", source, QBCore.Shared.Items[itemName], "remove")
     end
 end)
 
