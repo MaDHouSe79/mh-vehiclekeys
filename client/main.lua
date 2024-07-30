@@ -33,6 +33,11 @@ local function loadAnimDict(dict)
     end
 end
 
+local function MakePedFlee(ped)
+    SetPedFleeAttributes(ped, 0, 0)
+    TaskReactAndFleePed(ped, PlayerPedId())
+end
+
 local function GetVehicleInDirection(coordFromOffset, coordToOffset)
     local ped = PlayerPedId()
     local coordFrom = GetOffsetFromEntityInWorldCoords(ped, coordFromOffset.x, coordFromOffset.y, coordFromOffset.z)
@@ -339,11 +344,6 @@ local function CarjackVehicle(target)
             Wait(Config.DelayBetweenCarjackings)
             canCarjack = true
         end)
-end
-
-local function MakePedFlee(ped)
-    SetPedFleeAttributes(ped, 0, 0)
-    TaskReactAndFleePed(ped, PlayerPedId())
 end
 
 local function DrawText3D(x, y, z, text)
